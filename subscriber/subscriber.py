@@ -1,12 +1,13 @@
-"""Subscriber MQTT : reçoit les messages de CONTRAT.md et valide les mesures.
+"""Subscriber MQTT : valide les mesures de CONTRAT.md et les écrit dans InfluxDB.
 
-Variables d'environnement : BROKER_HOST (défaut localhost), BROKER_PORT (défaut 1883).
-L'écriture dans InfluxDB arrive au commit suivant (T7).
+Variables d'environnement : BROKER_HOST (défaut localhost), BROKER_PORT (défaut 1883),
+INFLUXDB_* (lues dans le .env à la racine, voir .env.example).
 """
 import os
 
 import paho.mqtt.client as mqtt
 
+from influx_writer import write_measurement
 from models import validate_measurement
 
 BROKER_HOST = os.getenv("BROKER_HOST", "localhost")
@@ -36,7 +37,13 @@ def on_message(client, userdata, msg):
         print(f"Rejeté sur {msg.topic} : {e}")
         return
 
-    print(f"[{zone}/{device_id}] {kind} = {m.value} {m.unit} ({m.timestamp.isoformat()})")
+    try:
+        write_measurement(zone, kind, m)
+    except Exception as e:
+        print(f"Écriture InfluxDB échouée pour {msg.topic} : {e}")
+        return
+
+    print(f"[{zone}/{device_id}] {kind} = {m.value} {m.unit} ({m.timestamp.isoformat()}) -> InfluxDB")
 
 
 def main():
