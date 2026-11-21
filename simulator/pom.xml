@@ -32,4 +32,18 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Permet de lancer le simulateur avec mvn compile exec:java -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>com.iot.simulator.SimulatorApp</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>

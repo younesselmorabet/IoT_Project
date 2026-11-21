@@ -1,4 +1,3 @@
-
 package com.iot.simulator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,11 +11,11 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SimulatorApp {
 
-    private static final String BROKER_URL = "tcp://localhost:1883";
-    private static final String CLIENT_ID = "iot-simulator-capteur01";
-
-    private static final String ZONE = "salon";
-    private static final String DEVICE_ID = "capteur01";
+    private static final String BROKER_URL = env("BROKER_URL", "tcp://localhost:1883");
+    private static final String ZONE = env("ZONE", "salon");
+    private static final String DEVICE_ID = env("DEVICE_ID", "capteur01");
+    private static final long INTERVAL_MS = Long.parseLong(env("INTERVAL_MS", "5000"));
+    private static final String CLIENT_ID = "iot-simulator-" + DEVICE_ID;
 
     private static final String STATUS_TOPIC =
             "iot/" + ZONE + "/" + DEVICE_ID + "/status";
@@ -50,9 +49,9 @@ public class SimulatorApp {
                 }
             }));
 
-            System.out.println("IoT Simulator started!");
+            System.out.println("IoT Simulator started: " + ZONE + "/" + DEVICE_ID);
 
-            // Publish measurements every 5 seconds
+            // Publish measurements at a fixed interval
             while (true) {
                 double temperature = generateValue(18, 30);
                 double humidity = generateValue(30, 70);
@@ -65,12 +64,17 @@ public class SimulatorApp {
                         HUMIDITY_TOPIC, humidity, "%"
                 );
 
-                Thread.sleep(5000);
+                Thread.sleep(INTERVAL_MS);
             }
 
         } catch (Exception e) {
             System.err.println("Simulator error: " + e.getMessage());
         }
+    }
+
+    private static String env(String name, String defaultValue) {
+        String value = System.getenv(name);
+        return (value == null || value.isBlank()) ? defaultValue : value;
     }
 
     private static void connect() throws MqttException {
