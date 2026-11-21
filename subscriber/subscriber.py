@@ -1,12 +1,13 @@
-"""Subscriber MQTT (T5) : reçoit et affiche les messages définis dans CONTRAT.md.
+"""Subscriber MQTT : reçoit les messages de CONTRAT.md et valide les mesures.
 
 Variables d'environnement : BROKER_HOST (défaut localhost), BROKER_PORT (défaut 1883).
-La validation (Pydantic) et l'écriture en base arrivent au sprint 2 (T7).
+L'écriture dans InfluxDB arrive au commit suivant (T7).
 """
-import json
 import os
 
 import paho.mqtt.client as mqtt
+
+from models import validate_measurement
 
 BROKER_HOST = os.getenv("BROKER_HOST", "localhost")
 BROKER_PORT = int(os.getenv("BROKER_PORT", "1883"))
@@ -30,10 +31,12 @@ def on_message(client, userdata, msg):
         return
 
     try:
-        data = json.loads(payload)
-        print(f"[{zone}/{device_id}] {kind} = {data['value']} {data['unit']} ({data['timestamp']})")
-    except (json.JSONDecodeError, KeyError):
-        print(f"Message invalide sur {msg.topic} : {payload}")
+        m = validate_measurement(kind, device_id, payload)
+    except ValueError as e:
+        print(f"Rejeté sur {msg.topic} : {e}")
+        return
+
+    print(f"[{zone}/{device_id}] {kind} = {m.value} {m.unit} ({m.timestamp.isoformat()})")
 
 
 def main():
