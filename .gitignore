@@ -4,6 +4,7 @@
 # Java / Maven
 **/target/
 *.class
+simulator/iot-simulator-*/
 
 # Python
 __pycache__/
