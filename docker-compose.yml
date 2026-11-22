@@ -58,6 +58,24 @@ services:
 
     restart: unless-stopped
 
+  subscriber:
+    build: ./subscriber
+    container_name: iot-prj-subscriber
+
+    environment:
+      BROKER_HOST: mosquitto
+      BROKER_PORT: "1883"
+      INFLUXDB_URL: http://influxdb:8086
+      INFLUXDB_TOKEN: ${INFLUXDB_TOKEN}
+      INFLUXDB_ORG: ${INFLUXDB_ORG}
+      INFLUXDB_BUCKET: ${INFLUXDB_BUCKET}
+
+    depends_on:
+      - mosquitto
+      - influxdb
+
+    restart: unless-stopped
+
 volumes:
   mosquitto-data:
   mosquitto-log:
