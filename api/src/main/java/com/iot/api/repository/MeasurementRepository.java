@@ -4,13 +4,16 @@ import com.iot.api.dto.MeasurementResponse;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 public interface MeasurementRepository {
 
     List<MeasurementResponse> findAll();
 
     List<MeasurementResponse> findByDeviceId(String deviceId);
+
+    List<MeasurementResponse> findByDeviceId(String deviceId, Integer limit);
+
+    List<MeasurementResponse> findAll(Integer limit);
 
     List<MeasurementResponse> findByFilters(
             String zone,
@@ -20,7 +23,7 @@ public interface MeasurementRepository {
             Integer limit
     );
 
-    Optional<MeasurementResponse> findLatestByDeviceId(String deviceId);
+    List<MeasurementResponse> findLatestByDeviceId(String deviceId);
 
     List<MeasurementResponse> findLatest();
 }

@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MeasurementService {
@@ -18,12 +17,12 @@ public class MeasurementService {
         this.measurementRepository = measurementRepository;
     }
 
-    public List<MeasurementResponse> getAllMeasurements() {
-        return measurementRepository.findAll();
+    public List<MeasurementResponse> getAllMeasurements(Integer limit) {
+        return measurementRepository.findAll(limit);
     }
 
-    public List<MeasurementResponse> getMeasurementsByDevice(String deviceId) {
-        return measurementRepository.findByDeviceId(deviceId);
+    public List<MeasurementResponse> getMeasurementsByDevice(String deviceId, Integer limit) {
+        return measurementRepository.findByDeviceId(deviceId, limit);
     }
 
     public List<MeasurementResponse> getMeasurementsByFilters(
@@ -38,7 +37,7 @@ public class MeasurementService {
         );
     }
 
-    public Optional<MeasurementResponse> getLatestMeasurementByDevice(String deviceId) {
+    public List<MeasurementResponse> getLatestMeasurementsByDevice(String deviceId) {
         return measurementRepository.findLatestByDeviceId(deviceId);
     }
 
